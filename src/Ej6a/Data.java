@@ -51,15 +51,14 @@ public class Data {
 		}
 	}
 	
-	public static Product search(int id) {
+	public static Product search(Product prod) {
 		
-		Product prod = new Product();
 		try {
 		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
 		
 		PreparedStatement state = conn.prepareStatement("Select * from product where id=?");
 		
-		state.setInt(1, id);
+		state.setInt(1, prod.getId() );
 		ResultSet result = state.executeQuery();
 		if (result.next()) {
 		prod.setId(result.getInt("id"));
@@ -83,7 +82,7 @@ public class Data {
 		}
 	}
 	
-	public static int neww(Product p) {
+	public static Product neww(Product p) {
 		try {
 		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
 		
@@ -102,19 +101,64 @@ public class Data {
         ResultSet result = pState.getGeneratedKeys();
         int id =0;
         if (result!=null && result.next()) {
-        	id = result.getInt(1);
+        	p.setId(result.getInt(1));
         }
         
 		if (result!=null)result.close();
 		if (pState!=null)pState.close();
 		conn.close();
 		
-		return id;
+		return p;
         
 		}
 		catch (SQLException exc) {
 		System.out.println("SQLException: "+ exc.getMessage());
-		return 0;
+		return p;
+		}
+	}
+	
+	public static void delete(Product prodToDelete) {
+		try {
+		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+        PreparedStatement pState = conn.prepareStatement(
+        		"DELETE FROM product WHERE id=?");
+        pState.setInt(1, prodToDelete.getId());
+        pState.executeUpdate();
+        
+		if (pState!=null)pState.close();
+		conn.close();
+        
+		}
+		catch (SQLException exc){
+			System.out.println("SQLException: "+ exc.getMessage());
+		}
+	}
+	
+	
+	public static void update(Product updatedProd) {
+		try {
+		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+		
+        PreparedStatement pState = conn.prepareStatement(
+        		"UPDATE product SET name=?, description=?, price=?, stock=?, shippingIncluded=? WHERE id=?"
+        		);
+        
+        pState.setString(1, updatedProd.getName());
+        pState.setString(2, updatedProd.getDescription());
+        pState.setDouble(3, updatedProd.getPrice());
+        pState.setInt(4, updatedProd.getStock());
+        pState.setBoolean(5, updatedProd.isShippingIncluded());
+        pState.setInt(6, updatedProd.getId());
+        System.out.println("enData "+updatedProd.getId());
+        pState.executeUpdate();
+        
+		if (pState!=null)pState.close();
+		conn.close();
+		
+        
+		}
+		catch (SQLException exc) {
+		System.out.println("SQLException: "+ exc.getMessage());
 		}
 	}
 }
