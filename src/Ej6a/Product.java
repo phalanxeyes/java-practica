@@ -1,5 +1,7 @@
 package Ej6a;
 
+import java.time.LocalDate;
+
 public class Product {
 
 	private int id;
@@ -8,6 +10,7 @@ public class Product {
 	private double price;
 	private int stock;
 	private boolean shippingIncluded;
+	private LocalDate disabledOn;
 	/*
 	Product(int id, String name, String description, double price, int stock, boolean shippingIncluded){
 		this.id = id;
@@ -66,7 +69,16 @@ public class Product {
 		this.shippingIncluded = shippingIncluded;
 	}
 	
+	public void setDisabledOn(LocalDate disabledOn) {
+		this.disabledOn = disabledOn;
+	}
+	
+	public LocalDate getDisabledOn() {
+		return disabledOn;
+	}
+	
 	public String toString(){
-		return "ID: "+ id + ", name: "+ name +  ", description: "+ description + ", price: " + price + ", stock: "+ stock+ ", shippingIncluded: "+ shippingIncluded;
+		return "ID: "+ id + ", name: "+ name +  ", description: "+ description + ", price: " + price + ", stock: "+ stock+ ", shippingIncluded: "+ shippingIncluded
+				+ ", disabledOn: "+ disabledOn;
 	}	
 }

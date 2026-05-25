@@ -2,16 +2,19 @@ package Ej6a;
 
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 
 public class Menu {
+	Data data = new Data();
+	static Scanner scan = new Scanner(System.in);
 	public static void main(String[] args) {
-		
-		Data.driver();
+		Menu menu = new Menu();
+		menu.data.driver();
+
 		LinkedList<Product> products = new LinkedList<>();
 		
-
-		
-		Scanner scan = new Scanner(System.in);
 		int num = -1;
 		while (num != 0) {
 			System.out.println("Select procedure:");
@@ -24,23 +27,23 @@ public class Menu {
 			num = Integer.parseInt(scan.nextLine());
 			switch (num) {
 				case 1: {
-					list(products);
+					menu.list(products);
 				break;
 				}
 				case 2: {
-					search();
+					menu.search();
 				break;
 				}
 				case 3: {
-					neww();
+					menu.neww();
 				break;
 				}
 				case 4: {
-					delete();
+					menu.delete();
 				break;
 				}	
 				case 5: {
-					update();
+					menu.update();
 				break;
 				}	
 			}
@@ -48,8 +51,8 @@ public class Menu {
 		scan.close();
 	}
 	
-	public static  void list(LinkedList<Product> products) {
-		products = Data.list();
+	public void list(LinkedList<Product> products) {
+		products = data.list();
 		for (int i=0; i< products.size(); i++) {
 		Product prod = products.get(i);
 		System.out.println(prod.getId());
@@ -60,13 +63,12 @@ public class Menu {
 	System.out.println();		
 	}
 	
-	public static Product search() {
-		Scanner scan = new Scanner(System.in);
+	public Product search() {
 		System.out.println("Type the ID of product to search");
 		int id= Integer.parseInt(scan.nextLine());
 		Product prodToSearch = new Product();
 		prodToSearch.setId(id);
-		Product prod = Data.search(prodToSearch);
+		Product prod = data.search(prodToSearch);
 		
 		System.out.println(prod.toString());
 		System.out.println();
@@ -74,30 +76,29 @@ public class Menu {
 		return prod;
 	}
 	
-	public static void neww(){
+	public void neww(){
 		Product prod = writeNewData();
-		System.out.println("The new product's ID is " + Data.neww(prod).getId());
+		System.out.println("The new product's ID is " + data.neww(prod).getId());
 	}	
 	
-	public static void delete() {
-		Scanner scan = new Scanner(System.in);
+	public void delete() {
 		System.out.println("Type the ID of the product to delete");
 		int id = Integer.parseInt(scan.nextLine());
 		Product prodToDelete = new Product();
 		prodToDelete.setId(id);
-		Data.delete(prodToDelete);
+		data.delete(prodToDelete);
 	}
 	
-	public static void update() {
+	public void update() {
 		Product prodFound = search();
-		System.out.println("enmenu "+ prodFound.getId());
+		System.out.println("Found product with ID "+ prodFound.getId());
 		Product prodToUpdate = writeNewData();
 		prodToUpdate.setId(prodFound.getId());
-		Data.update(prodToUpdate);
+		data.update(prodToUpdate);
 	}
 	
-	public static Product writeNewData() {
-		Scanner scan = new Scanner(System.in);
+	public Product writeNewData() {
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		Product prod = new Product();
 		System.out.println("Type the new name of the product");
 		prod.setName(scan.nextLine());
@@ -110,6 +111,10 @@ public class Menu {
 		System.out.println("Is shipping included? 1 for yes, 0 for no");
 		if (Integer.parseInt(scan.nextLine()) == 1) prod.setShippingIncluded(true);
 		else prod.setShippingIncluded(false);
+		System.out.println("When is this product disabled?");
+		LocalDate date = LocalDate.parse(scan.nextLine(), format);
+		System.out.println(date);
+		prod.setDisabledOn(date);
 		
 		return prod;
 	}

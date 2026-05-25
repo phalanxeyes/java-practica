@@ -2,6 +2,7 @@ package Ej6a;
 
 import java.util.LinkedList;
 import java.sql.*;
+import java.time.LocalDate;
 
 public class Data {
 
@@ -9,23 +10,27 @@ public class Data {
 
 	}
 	
-	public static void driver() {
+	public Connection connect() throws SQLException{
+		return DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+	}
+	
+	public void disconnect(Connection conn) throws SQLException {
+		conn.close();
+	}
+	
+	public void driver() {
 		try {
-		    Connection conn = DriverManager.getConnection(
-		        "jdbc:mysql://localhost/javaMarket",
-		        "root",
-		        "root"
-		    );
+		    Connection conn = this.connect();
 		} catch (SQLException e) {
 		    e.printStackTrace();}
 		}
 	
-	public static LinkedList<Product> list(){
+	public LinkedList<Product> list(){
 		
 		LinkedList<Product> products = new LinkedList<>();
 		try {
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
-		
+		Connection conn = this.connect();
+			
 		Statement state = conn.createStatement();
 		ResultSet result = state.executeQuery("SELECT * FROM product");
 		
@@ -40,7 +45,7 @@ public class Data {
 		
 		if (result!=null)result.close();
 		if (state!=null)state.close();
-		conn.close();
+		this.disconnect(conn);
 		
 		return products;
 		}
@@ -51,10 +56,10 @@ public class Data {
 		}
 	}
 	
-	public static Product search(Product prod) {
+	public Product search(Product prod) {
 		
 		try {
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+		Connection conn = this.connect();
 		
 		PreparedStatement state = conn.prepareStatement("Select * from product where id=?");
 		
@@ -67,10 +72,11 @@ public class Data {
 		prod.setPrice(result.getDouble("price"));
 		prod.setStock(result.getInt("stock"));
 		prod.setShippingIncluded(result.getBoolean("shippingIncluded"));
+		prod.setDisabledOn(result.getObject("disabledOn", LocalDate.class));
 		}
 		if (result!=null)result.close();
 		if (state!=null)state.close();
-		conn.close();
+		this.disconnect(conn);
 		
 		return prod;
 		}
@@ -82,12 +88,12 @@ public class Data {
 		}
 	}
 	
-	public static Product neww(Product p) {
+	public Product neww(Product p) {
 		try {
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+		Connection conn = this.connect();
 		
         PreparedStatement pState = conn.prepareStatement(
-        		"insert into product(name,description,price,stock,shippingIncluded) values (?,?,?,?,?)"
+        		"insert into product(name,description,price,stock,shippingIncluded, disabledOn) values (?,?,?,?,?,?)"
         		,PreparedStatement.RETURN_GENERATED_KEYS
         		);
         pState.setString(1, p.getName());
@@ -95,6 +101,7 @@ public class Data {
         pState.setDouble(3, p.getPrice());
         pState.setInt(4, p.getStock());
         pState.setBoolean(5, p.isShippingIncluded());
+        pState.setObject(6, p.getDisabledOn());
         
         pState.executeUpdate();
         
@@ -106,7 +113,7 @@ public class Data {
         
 		if (result!=null)result.close();
 		if (pState!=null)pState.close();
-		conn.close();
+		this.disconnect(conn);
 		
 		return p;
         
@@ -117,16 +124,16 @@ public class Data {
 		}
 	}
 	
-	public static void delete(Product prodToDelete) {
+	public void delete(Product prodToDelete) {
 		try {
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+		Connection conn = this.connect();
         PreparedStatement pState = conn.prepareStatement(
         		"DELETE FROM product WHERE id=?");
         pState.setInt(1, prodToDelete.getId());
         pState.executeUpdate();
         
 		if (pState!=null)pState.close();
-		conn.close();
+		this.disconnect(conn);
         
 		}
 		catch (SQLException exc){
@@ -135,12 +142,12 @@ public class Data {
 	}
 	
 	
-	public static void update(Product updatedProd) {
+	public void update(Product updatedProd) {
 		try {
-		Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/javaMarket","root","root");
+		Connection conn = this.connect();
 		
         PreparedStatement pState = conn.prepareStatement(
-        		"UPDATE product SET name=?, description=?, price=?, stock=?, shippingIncluded=? WHERE id=?"
+        		"UPDATE product SET name=?, description=?, price=?, stock=?, shippingIncluded=?, disabledOn=? WHERE id=?"
         		);
         
         pState.setString(1, updatedProd.getName());
@@ -148,12 +155,12 @@ public class Data {
         pState.setDouble(3, updatedProd.getPrice());
         pState.setInt(4, updatedProd.getStock());
         pState.setBoolean(5, updatedProd.isShippingIncluded());
-        pState.setInt(6, updatedProd.getId());
-        System.out.println("enData "+updatedProd.getId());
+        pState.setObject(6, updatedProd.getDisabledOn());
+        pState.setInt(7, updatedProd.getId());
         pState.executeUpdate();
         
 		if (pState!=null)pState.close();
-		conn.close();
+		this.disconnect(conn);
 		
         
 		}
